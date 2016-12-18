@@ -1,0 +1,32 @@
+{
+  "name": "twitter",
+  "version": "0.0.1",
+  "description": "exploring twitter",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/warrenronsiek/twitter.git"
+  },
+  "author": "Warren Ronsiek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/warrenronsiek/twitter/issues"
+  },
+  "homepage": "https://github.com/warrenronsiek/twitter#readme",
+  "dependencies": {
+    "twitter-node-client": "0.0.6",
+    "user-stream": "0.0.7"
+  },
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "babel-plugin-transform-flow-strip-types": "^6.18.0",
+    "babel-plugin-transform-remove-strict-mode": "0.0.2",
+    "babel-preset-es2015": "^6.18.0",
+    "webpack": "^1.14.0",
+    "webpack-validator": "^2.2.12"
+  }
+}
