@@ -49,3 +49,4 @@ node_modules/
 keys.js
 keysClient.js
 keysStream.js
+awsKeys.json

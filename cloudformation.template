@@ -1,0 +1,63 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "",
+  "Resources": {
+    "TweetGetter": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "AvailabilityZone": "us-west-2a",
+        "ImageId": "ami-5ec1673e",
+        "InstanceType": "t2.nano",
+        "SubnetId": "subnet-3ba49c5f",
+        "SecurityGroupIds": ["sg-6a6ac413"]
+      }
+    },
+    "TweetIAMRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "firehose:PutRecord",
+                "firehose:PutRecordBatch"
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": ["s3:ListAllMyBuckets", "s3:ListBucket", "s3:PutObject"],
+            }
+          ]
+        }
+      }
+    },
+    "TweetStream": {
+      "Type": "AWS::KinesisFirehose::DeliveryStream",
+      "Properties": {
+        "DeliveryStreamName": "TweetStream",
+        "S3DestinationConfiguration": {
+          "BucketARN": {
+            "Ref": "TweetBucket"
+          },
+          "BufferingHints": {
+            "IntervalInSeconds": 5,
+            "SizeInMBs": 5
+          },
+          "RoleARN": {
+            "Ref": "TweetIAMRole"
+          },
+          "CompressionFormat": "ZIP",
+          "Prefix": "tweets"
+        }
+      }
+    },
+    "TweetBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "tweetstreambucket"
+      }
+    }
+  }
+}
