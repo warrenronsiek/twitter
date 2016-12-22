@@ -23,11 +23,13 @@
               "Action": [
                 "firehose:PutRecord",
                 "firehose:PutRecordBatch"
-              ]
+              ],
+              "Resource": "*"
             },
             {
               "Effect": "Allow",
               "Action": ["s3:ListAllMyBuckets", "s3:ListBucket", "s3:PutObject"],
+              "Resource": "*"
             }
           ]
         }
