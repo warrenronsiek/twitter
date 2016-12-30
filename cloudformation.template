@@ -8,8 +8,25 @@
         "AvailabilityZone": "us-west-2a",
         "ImageId": "ami-5ec1673e",
         "InstanceType": "t2.nano",
-        "SubnetId": "subnet-3ba49c5f",
-        "SecurityGroupIds": ["sg-6a6ac413"]
+        "IamInstanceProfile": [
+          {
+            "Ref": "TweetProfile"
+          }
+        ],
+        "SecurityGroups": [
+          "sg-6a6ac413"
+        ]
+      }
+    },
+    "TweetProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/projects/twitter",
+        "Roles": [
+          {
+            "Ref": "TweetIAMRole"
+          }
+        ]
       }
     },
     "TweetIAMRole": {
@@ -20,19 +37,38 @@
           "Statement": [
             {
               "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Effect": "Allow",
               "Action": [
                 "firehose:PutRecord",
                 "firehose:PutRecordBatch"
               ],
               "Resource": "*"
             },
-            {
+            "PolicyName": "FirehoseWritePolicy"
+          },
+          {
+            "PolicyDocument": {
               "Effect": "Allow",
-              "Action": ["s3:ListAllMyBuckets", "s3:ListBucket", "s3:PutObject"],
+              "Action": [
+                "s3:ListAllMyBuckets",
+                "s3:ListBucket",
+                "s3:PutObject"
+              ],
               "Resource": "*"
-            }
-          ]
-        }
+            },
+            "PolicyName": "S3WritePolicy"
+          }
+        ]
       }
     },
     "TweetStream": {
