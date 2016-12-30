@@ -21,7 +21,7 @@
     "TweetProfile": {
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
-        "Path": "/projects/twitter",
+        "Path": "/projects/twitter/",
         "Roles": [
           {
             "Ref": "TweetIAMRole"
@@ -46,27 +46,20 @@
         },
         "Policies": [
           {
+            "PolicyName": "FirehoseS3WritePolicy",
             "PolicyDocument": {
-              "Effect": "Allow",
-              "Action": [
-                "firehose:PutRecord",
-                "firehose:PutRecordBatch"
-              ],
-              "Resource": "*"
-            },
-            "PolicyName": "FirehoseWritePolicy"
-          },
-          {
-            "PolicyDocument": {
-              "Effect": "Allow",
-              "Action": [
-                "s3:ListAllMyBuckets",
-                "s3:ListBucket",
-                "s3:PutObject"
-              ],
-              "Resource": "*"
-            },
-            "PolicyName": "S3WritePolicy"
+              "Statement": {
+                "Effect": "Allow",
+                "Action": [
+                  "firehose:PutRecord",
+                  "firehose:PutRecordBatch",
+                  "s3:ListAllMyBuckets",
+                  "s3:ListBucket",
+                  "s3:PutObject"
+                ],
+                "Resource": "*"
+              }
+            }
           }
         ]
       }
@@ -77,14 +70,30 @@
         "DeliveryStreamName": "TweetStream",
         "S3DestinationConfiguration": {
           "BucketARN": {
-            "Ref": "TweetBucket"
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:s3:::",
+                {
+                  "Ref": "TweetBucket"
+                }
+              ]
+            ]
           },
           "BufferingHints": {
-            "IntervalInSeconds": 5,
+            "IntervalInSeconds": 60,
             "SizeInMBs": 5
           },
           "RoleARN": {
-            "Ref": "TweetIAMRole"
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:iam:::",
+                {
+                  "Ref": "TweetIAMRole"
+                }
+              ]
+            ]
           },
           "CompressionFormat": "ZIP",
           "Prefix": "tweets"
