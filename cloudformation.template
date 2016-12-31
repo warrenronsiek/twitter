@@ -52,7 +52,37 @@
                 "Effect": "Allow",
                 "Action": [
                   "firehose:PutRecord",
-                  "firehose:PutRecordBatch",
+                  "firehose:PutRecordBatch"
+                ],
+                "Resource": "*"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "TweetHoseRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "firehose.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "FirehoseS3WritePolicy",
+            "PolicyDocument": {
+              "Statement": {
+                "Effect": "Allow",
+                "Action": [
                   "s3:ListAllMyBuckets",
                   "s3:ListBucket",
                   "s3:PutObject"
@@ -90,7 +120,7 @@
               [
                 "arn:aws:iam:::",
                 {
-                  "Ref": "TweetIAMRole"
+                  "Ref": "TweetHoseRole"
                 }
               ]
             ]
