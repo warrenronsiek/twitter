@@ -9,12 +9,16 @@
         "AvailabilityZone": "us-west-2a",
         "ImageId": "ami-5ec1673e",
         "InstanceType": "t2.nano",
-        "SubnetId": {"Fn::ImportValue": "VPCDefaultAppTabPublicSubnet"},
+        "SubnetId": {
+          "Fn::ImportValue": "VPCDefaultAppTabPublicSubnet"
+        },
         "IamInstanceProfile": {
           "Ref": "TweetEC2Profile"
         },
         "SecurityGroupIds": [
-          {"Fn::ImportValue": "VPCDefaultPublicAppTabSecGroup"}
+          {
+            "Fn::ImportValue": "VPCDefaultPublicAppTabSecGroup"
+          }
         ]
       }
     },
@@ -38,7 +42,9 @@
             {
               "Effect": "Allow",
               "Principal": {
-                "Service": ["ec2.amazonaws.com"]
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
               },
               "Action": "sts:AssumeRole"
             }
@@ -54,7 +60,17 @@
                   "firehose:PutRecord",
                   "firehose:PutRecordBatch"
                 ],
-                "Resource": "*"
+                "Resource": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:firehose:::",
+                      {
+                        "Ref": "TweetStream"
+                      }
+                    ]
+                  ]
+                }
               }
             }
           }
@@ -87,7 +103,17 @@
                   "s3:ListBucket",
                   "s3:PutObject"
                 ],
-                "Resource": "*"
+                "Resource": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Ref": "TweetBucket"
+                      }
+                    ]
+                  ]
+                }
               }
             }
           }
@@ -115,7 +141,10 @@
             "SizeInMBs": 5
           },
           "RoleARN": {
-            "Fn::GetAtt" : ["TweetHoseRole", "Arn"]
+            "Fn::GetAtt": [
+              "TweetHoseRole",
+              "Arn"
+            ]
           },
           "CompressionFormat": "ZIP",
           "Prefix": "tweets"
