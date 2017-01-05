@@ -4,21 +4,21 @@
   "Resources": {
     "TweetGetter": {
       "Type": "AWS::EC2::Instance",
+      "Version": "2009-05-15",
       "Properties": {
         "AvailabilityZone": "us-west-2a",
         "ImageId": "ami-5ec1673e",
         "InstanceType": "t2.nano",
-        "IamInstanceProfile": [
-          {
-            "Ref": "TweetProfile"
-          }
-        ],
-        "SecurityGroups": [
-          "sg-6a6ac413"
+        "SubnetId": {"Fn::ImportValue": "VPCDefaultAppTabPublicSubnet"},
+        "IamInstanceProfile": {
+          "Ref": "TweetEC2Profile"
+        },
+        "SecurityGroupIds": [
+          {"Fn::ImportValue": "VPCDefaultPublicAppTabSecGroup"}
         ]
       }
     },
-    "TweetProfile": {
+    "TweetEC2Profile": {
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "Path": "/projects/twitter/",
@@ -38,7 +38,7 @@
             {
               "Effect": "Allow",
               "Principal": {
-                "Service": "ec2.amazonaws.com"
+                "Service": ["ec2.amazonaws.com"]
               },
               "Action": "sts:AssumeRole"
             }
@@ -70,7 +70,7 @@
             {
               "Effect": "Allow",
               "Principal": {
-                "Service": "firehose.amazonaws.com"
+                "Service": ["firehose.amazonaws.com"]
               },
               "Action": "sts:AssumeRole"
             }
