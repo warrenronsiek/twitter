@@ -70,7 +70,7 @@
             {
               "Effect": "Allow",
               "Principal": {
-                "Service": ["firehose.amazonaws.com"]
+                "Service": "firehose.amazonaws.com"
               },
               "Action": "sts:AssumeRole"
             }
@@ -115,15 +115,7 @@
             "SizeInMBs": 5
           },
           "RoleARN": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:iam:::",
-                {
-                  "Ref": "TweetHoseRole"
-                }
-              ]
-            ]
+            "Fn::GetAtt" : ["TweetHoseRole", "Arn"]
           },
           "CompressionFormat": "ZIP",
           "Prefix": "tweets"

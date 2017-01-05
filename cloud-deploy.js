@@ -42,6 +42,7 @@ function createStack() {
 function updateStack() {
   let params = {
     StackName: 'twitter',
+    Capabilities: ['CAPABILITY_IAM'],
     TemplateBody: template
   };
   cloudformation.updateStack(params).promise()
