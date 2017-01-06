@@ -1,9 +1,11 @@
 /**
  * Created by warren on 12/9/16.
  */
-import Stream from 'user-stream';
-import keys from './keysStream';
-const stream = new Stream(keys);
 
-stream.stream();
-export default stream.on('data', item => console.log(item));
+import keys from './keysTwit';
+const Twit =  require('twit');
+const T = new Twit(keys);
+
+const stream = T.stream('statuses/sample');
+
+export default stream.on('tweet', item => console.log(item));

@@ -13,16 +13,20 @@
         "IamInstanceProfile": {
           "Ref": "TweetEC2Profile"
         },
-        "NetworkInterfaces": [{
-          "AssociatePublicIpAddress": "true",
-          "DeviceIndex": "0",
-          "GroupSet": [{
-            "Fn::ImportValue": "VPCDefaultPublicAppTabSecGroup"
-          }],
-          "SubnetId": {
-            "Fn::ImportValue": "VPCDefaultAppTabPublicSubnet"
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Fn::ImportValue": "VPCDefaultPublicAppTabSecGroup"
+              }
+            ],
+            "SubnetId": {
+              "Fn::ImportValue": "VPCDefaultAppTabPublicSubnet"
+            }
           }
-        }]
+        ]
       }
     },
     "TweetEC2Profile": {
@@ -55,21 +59,30 @@
         },
         "Policies": [
           {
-            "PolicyName": "FirehoseS3WritePolicy",
+            "PolicyName": "EC2ToFirehoseWritePolicy",
             "PolicyDocument": {
               "Statement": {
                 "Effect": "Allow",
                 "Action": [
                   "firehose:PutRecord",
-                  "firehose:PutRecordBatch"
+                  "firehose:PutRecordBatch",
+                  "firehose:UpdateDestination"
                 ],
                 "Resource": {
                   "Fn::Join": [
                     "",
                     [
-                      "arn:aws:firehose:::",
+                      "arn:aws:firehose:",
                       {
-                        "Ref": "TweetStream"
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":deliverystream/",
+                      {
+                        "Ref": "TweetHose"
                       }
                     ]
                   ]
@@ -97,36 +110,53 @@
         },
         "Policies": [
           {
-            "PolicyName": "FirehoseS3WritePolicy",
+            "PolicyName": "FirehoseToS3WritePolicy",
             "PolicyDocument": {
               "Statement": {
                 "Effect": "Allow",
                 "Action": [
-                  "s3:ListAllMyBuckets",
+                  "s3:AbortMultipartUpload",
+                  "s3:GetBucketLocation",
+                  "s3:GetObject",
                   "s3:ListBucket",
+                  "s3:ListBucketMultipartUploads",
                   "s3:PutObject"
                 ],
-                "Resource": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:s3:::",
-                      {
-                        "Ref": "TweetBucket"
-                      }
+                "Resource": [
+                  {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:s3:::",
+                        {
+                          "Ref": "TweetBucket"
+                        }
+                      ]
                     ]
-                  ]
-                }
+                  },
+                  {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:s3:::",
+                        {
+                          "Ref": "TweetBucket"
+                        },
+                        "/"
+                      ]
+                    ]
+                  }
+                ]
               }
             }
           }
         ]
       }
     },
-    "TweetStream": {
+    "TweetHose": {
       "Type": "AWS::KinesisFirehose::DeliveryStream",
       "Properties": {
-        "DeliveryStreamName": "TweetStream",
+        "DeliveryStreamName": "TweetHose",
         "S3DestinationConfiguration": {
           "BucketARN": {
             "Fn::Join": [
@@ -141,7 +171,7 @@
           },
           "BufferingHints": {
             "IntervalInSeconds": 60,
-            "SizeInMBs": 5
+            "SizeInMBs": 2
           },
           "RoleARN": {
             "Fn::GetAtt": [

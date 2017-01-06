@@ -12,10 +12,9 @@ const paths = {
 };
 
 const build = {
-  devtool: 'source-map',
-  entry: paths.src,
+  entry: [path.join(paths.src, 'index.js')],
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['', '.js', '.json']
   },
   target: 'node',
   output: {
@@ -29,18 +28,22 @@ const build = {
         test: /\.js$/,
         loader: 'babel',
         exclude: paths.nodeModules
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader',
       }
     ]
   },
   plugins: [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {warnings: false, drop_console: true},
-      beautify: false,
-      comments: false,
-      mangle: {except: ['$', 'webpackJsonp'], screw_ie8: true, keep_fnames: false}
-    })
+    // new webpack.optimize.DedupePlugin(),
+    // new webpack.optimize.OccurrenceOrderPlugin(),
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress: {warnings: false, drop_console: true},
+    //   beautify: false,
+    //   comments: false,
+    //   mangle: {except: ['$', 'webpackJsonp'], screw_ie8: true, keep_fnames: false}
+    // })
   ]
 };
 
