@@ -61,36 +61,106 @@
           {
             "PolicyName": "EC2ToFirehoseWritePolicy",
             "PolicyDocument": {
-              "Statement": {
-                "Effect": "Allow",
-                "Action": [
-                  "firehose:PutRecord",
-                  "firehose:PutRecordBatch",
-                  "firehose:UpdateDestination"
-                ],
-                "Resource": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "firehose:PutRecord",
+                    "firehose:PutRecordBatch",
+                    "firehose:UpdateDestination"
+                  ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:firehose:",
+                        {
+                          "Ref": "AWS::Region"
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId"
+                        },
+                        ":deliverystream/",
+                        {
+                          "Ref": "TweetHose"
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "TweetKey": {
+      "Type": "AWS::KMS::Key",
+      "Properties": {
+        "Description": "Key used to decrypt twitter credentials",
+        "KeyPolicy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
                   "Fn::Join": [
                     "",
                     [
-                      "arn:aws:firehose:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
+                      "arn:aws:iam::",
                       {
                         "Ref": "AWS::AccountId"
                       },
-                      ":deliverystream/",
+                      ":role/",
                       {
-                        "Ref": "TweetHose"
+                        "Ref": "TweetIAMRole"
                       }
                     ]
                   ]
                 }
-              }
+              },
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:iam::",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":root"
+                    ]
+                  ]
+                }
+              },
+              "Action": [
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion"
+              ],
+              "Resource": "*"
             }
-          }
-        ]
+          ]
+        }
       }
     },
     "TweetHoseRole": {

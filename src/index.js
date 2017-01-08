@@ -21,7 +21,7 @@ const params = (tweet) => {
 let i = 0;
 
 stream.on('tweet', item => {
-  if (i >= 100) {
+  if (i >= 1000000) {
     stream.stop();
     process.exit()
   }
