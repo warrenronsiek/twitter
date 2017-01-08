@@ -47,3 +47,5 @@ fabric.properties
 node_modules/
 awsKeys.json
 **/*keys*
+code-deploy.sh
+ec2-run.sh

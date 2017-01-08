@@ -95,6 +95,15 @@
         ]
       }
     },
+    "TweetKeyAlias": {
+      "Type": "AWS::KMS::Alias",
+      "Properties": {
+        "AliasName": "TweetKey",
+        "TargetKeyId": {
+          "Ref": "TweetKey"
+        }
+      }
+    },
     "TweetKey": {
       "Type": "AWS::KMS::Key",
       "Properties": {
@@ -145,6 +154,10 @@
               },
               "Action": [
                 "kms:Create*",
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
                 "kms:Describe*",
                 "kms:Enable*",
                 "kms:List*",
