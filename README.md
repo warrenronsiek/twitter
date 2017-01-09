@@ -47,7 +47,7 @@ Installation
      #!/usr/bin/env bash
      ./node_modules/.bin/webpack
      scp -i /path/to/key/yourKey.pem /path/to/twitter/project/dist/bundle.js ec2-user@:<your public ip>/home/ec2-user/
-    ```
+     ```
 
 10. Run `./code-deploy.sh`
 11. SSH into your ec2 instance, update programs, install node, and run the bundle.
