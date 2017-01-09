@@ -4,7 +4,6 @@ const cli = require('commander');
 const aws = require('aws-sdk');
 const fs = require('fs');
 const template = JSON.stringify(JSON.parse(fs.readFileSync('./cloudformation.template', 'utf8')));
-const awsKeys = {};
 
 aws.config.loadFromPath('./awsKeys.json');
 

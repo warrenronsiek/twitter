@@ -88,6 +88,45 @@
                       ]
                     ]
                   }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:ReceiveMessage",
+                    "sqs:SendMessage"
+                  ],
+                  "Resource": {
+                    "Fn::GetAtt": ["LogQueue", "Arn"]
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogStreams"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId"
+                          },
+                          ":log-group:",
+                          {
+                            "Ref": "TweetLogGroup"
+                          },
+                          ":log-stream:*"
+                        ]
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -98,7 +137,7 @@
     "TweetKeyAlias": {
       "Type": "AWS::KMS::Alias",
       "Properties": {
-        "AliasName": "TweetKey",
+        "AliasName": "alias/TweetKey",
         "TargetKeyId": {
           "Ref": "TweetKey"
         }
@@ -195,45 +234,101 @@
           {
             "PolicyName": "FirehoseToS3WritePolicy",
             "PolicyDocument": {
-              "Statement": {
-                "Effect": "Allow",
-                "Action": [
-                  "s3:AbortMultipartUpload",
-                  "s3:GetBucketLocation",
-                  "s3:GetObject",
-                  "s3:ListBucket",
-                  "s3:ListBucketMultipartUploads",
-                  "s3:PutObject"
-                ],
-                "Resource": [
-                  {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:aws:s3:::",
-                        {
-                          "Ref": "TweetBucket"
-                        }
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "logs:PutLogEvents",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId"
+                          },
+                          ":log-group:",
+                          {
+                            "Ref": "TweetLogGroup"
+                          },
+                          ":log-stream:",
+                          {
+                            "Ref": "TweetHoseLogs"
+                          }
+                        ]
                       ]
-                    ]
-                  },
-                  {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:aws:s3:::",
-                        {
-                          "Ref": "TweetBucket"
-                        },
-                        "/"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:AbortMultipartUpload",
+                    "s3:GetBucketLocation",
+                    "s3:GetObject",
+                    "s3:ListBucket",
+                    "s3:ListBucketMultipartUploads",
+                    "s3:PutObject"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:s3:::",
+                          {
+                            "Ref": "TweetBucket"
+                          }
+                        ]
                       ]
-                    ]
-                  }
-                ]
-              }
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:s3:::",
+                          {
+                            "Ref": "TweetBucket"
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           }
         ]
+      }
+    },
+    "TweetLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "TwitterLogs",
+        "RetentionInDays": 3
+      }
+    },
+    "TweetHoseLogs": {
+      "Type": "AWS::Logs::LogStream",
+      "Properties": {
+        "LogStreamName": "TweetHoseLog",
+        "LogGroupName": {
+          "Ref": "TweetLogGroup"
+        }
+      }
+    },
+    "TweetGetterLogs": {
+      "Type": "AWS::Logs::LogStream",
+      "Properties": {
+        "LogStreamName": "TweetGetterLog",
+        "LogGroupName": {
+          "Ref": "TweetLogGroup"
+        }
       }
     },
     "TweetHose": {
@@ -254,7 +349,7 @@
           },
           "BufferingHints": {
             "IntervalInSeconds": 60,
-            "SizeInMBs": 2
+            "SizeInMBs": 20
           },
           "RoleARN": {
             "Fn::GetAtt": [
@@ -263,8 +358,25 @@
             ]
           },
           "CompressionFormat": "ZIP",
-          "Prefix": "tweets"
+          "Prefix": "tweets",
+          "CloudWatchLoggingOptions": {
+            "Enabled": true,
+            "LogGroupName": {
+              "Ref": "TweetLogGroup"
+            },
+            "LogStreamName": {
+              "Ref": "TweetHoseLogs"
+            }
+          }
         }
+      }
+    },
+    "LogQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "MessageRetentionPeriod": 172800,
+        "ReceiveMessageWaitTimeSeconds": 2,
+        "QueueName": "TwitterLogQueue"
       }
     },
     "TweetBucket": {

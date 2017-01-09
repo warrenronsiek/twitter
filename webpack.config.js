@@ -36,14 +36,14 @@ const build = {
     ]
   },
   plugins: [
-    // new webpack.optimize.DedupePlugin(),
-    // new webpack.optimize.OccurrenceOrderPlugin(),
-    // new webpack.optimize.UglifyJsPlugin({
-    //   compress: {warnings: false, drop_console: true},
-    //   beautify: false,
-    //   comments: false,
-    //   mangle: {except: ['$', 'webpackJsonp'], screw_ie8: true, keep_fnames: false}
-    // })
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {warnings: false, drop_console: true},
+      beautify: false,
+      comments: false,
+      mangle: {except: ['$', 'webpackJsonp'], screw_ie8: true, keep_fnames: false}
+    })
   ]
 };
 
