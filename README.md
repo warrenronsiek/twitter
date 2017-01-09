@@ -40,12 +40,15 @@ Installation
           }
     });
     ```
+
  9. Get the public IP associated with the EC2 instance created by the stack and create a file called code-deploy.sh with the following code in it:
+
      ```
      #!/usr/bin/env bash
      ./node_modules/.bin/webpack
      scp -i /path/to/key/yourKey.pem /path/to/twitter/project/dist/bundle.js ec2-user@:<your public ip>/home/ec2-user/
-     ```
+    ```
+
 10. Run `./code-deploy.sh`
 11. SSH into your ec2 instance, update programs, install node, and run the bundle.
     ```
@@ -57,7 +60,8 @@ Installation
     nohup node bundle.js > /home/ec2-user/log.txt &
     logout
     ```
-12. Done! You should see tweets appearing in S3 pretty soon.
+
+13. Done! You should see tweets appearing in S3 pretty soon.
 
 TODO
 ----
